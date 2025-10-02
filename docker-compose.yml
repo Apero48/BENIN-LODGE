@@ -1,0 +1,22 @@
+services:
+  web:
+    build: .
+    platform: linux/amd64
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html:cached
+    depends_on:
+      - db
+    environment:
+      - COMPOSER_ALLOW_SUPERUSER=1
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    platform: linux/amd64
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"

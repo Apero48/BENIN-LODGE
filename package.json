@@ -1,0 +1,10 @@
+{
+  "name": "benin-lodge",
+  "version": "1.0.0",
+  "description": "Application de gestion des réservations BENIN LODGE",
+  "scripts": {
+    "dev": "php -S localhost:8000",
+    "serve": "python3 -m http.server 8000",
+    "live": "npx live-server --port=8000"
+  }
+}

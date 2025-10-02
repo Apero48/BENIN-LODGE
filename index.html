@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BENIN LODGE - Gestion des Réservations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation principale -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-hotel me-2"></i>BENIN LODGE
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell me-1"></i>
+                            <span class="notification-badge">3</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <li><a class="dropdown-item notification-item unread" href="#">Nouvelle réservation en attente</a></li>
+                            <li><a class="dropdown-item notification-item unread" href="#">Chambre libérée plus tôt</a></li>
+                            <li><a class="dropdown-item notification-item" href="#">Rapport mensuel disponible</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center" href="#">Voir toutes les notifications</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-user me-1"></i> Admin</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-cog me-1"></i> Paramètres</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-sign-out-alt me-1"></i> Déconnexion</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3 sidebar p-0">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-page="dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i> Tableau de bord
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="reservations">
+                            <i class="fas fa-list me-2"></i> Toutes les réservations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="new-reservation">
+                            <i class="fas fa-plus-circle me-2"></i> Nouvelle réservation
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="hotels">
+                            <i class="fas fa-building me-2"></i> Gestion des hôtels
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="rooms">
+                            <i class="fas fa-bed me-2"></i> Types de chambres
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-page="reports">
+                            <i class="fas fa-chart-bar me-2"></i> Rapports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="col-lg-10 col-md-9 main-content">
+                <!-- Page Tableau de bord -->
+                <div id="dashboard-page" class="page-content">
+                    <h2 class="mb-4">Tableau de bord</h2>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card stat-card">
+                                <div class="number">127</div>
+                                <div class="label">Total Réservations</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card confirmed">
+                                <div class="number">89</div>
+                                <div class="label">Confirmées</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card pending">
+                                <div class="number">23</div>
+                                <div class="label">En attente</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card revenue">
+                                <div class="number">2,450,000</div>
+                                <div class="label">FCFA ce mois</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Revenus annuels</h5>
+                                    <div>
+                                        <select class="form-select form-select-sm" id="year-select">
+                                            <option>2023</option>
+                                            <option>2024</option>
+                                            <option selected>2025</option>
+                                            <option>2026</option>
+                                            <option>2027</option>
+                                            <option>2028</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="revenueChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Taux d'occupation</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="occupancyChart" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">Réservations récentes</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Client</th>
+                                            <th>Hôtel</th>
+                                            <th>Dates</th>
+                                            <th>Statut</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>AGBODIAN Koffi</td>
+                                            <td>Golden Tulip</td>
+                                            <td>15-18 Mars</td>
+                                            <td><span class="badge badge-confirmed">Confirmée</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">Détails</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>TOGNON Marie</td>
+                                            <td>Azalai Hôtel</td>
+                                            <td>20-25 Mars</td>
+                                            <td><span class="badge badge-pending">En attente</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-success me-1">Confirmer</button>
+                                                <button class="btn btn-sm btn-outline-danger">Annuler</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>HOUETO Jean</td>
+                                            <td>Auberge Grand-Popo</td>
+                                            <td>22-24 Mars</td>
+                                            <td><span class="badge badge-confirmed">Confirmée</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">Détails</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page Nouvelle réservation -->
+                <div id="new-reservation-page" class="page-content" style="display: none;">
+                    <h2 class="mb-4">Nouvelle réservation</h2>
+                    
+                    <div class="form-section">
+                        <h3>Enregistrer une nouvelle réservation</h3>
+                        
+                        <form id="reservation-form">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h5>Informations du client</h5>
+                                    <div class="mb-3">
+                                        <label for="client-name" class="form-label">Nom complet *</label>
+                                        <input type="text" class="form-control" id="client-name" placeholder="Ex: AGBODIAN Koffi M" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="client-phone" class="form-label">Téléphone *</label>
+                                        <input type="tel" class="form-control" id="client-phone" placeholder="Ex: 97123456" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="client-email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="client-email" placeholder="client@email.com">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h5>Détails de la réservation</h5>
+                                    <div class="mb-3">
+                                        <label for="hotel-select" class="form-label">Hôtel *</label>
+                                        <select class="form-select" id="hotel-select" required>
+                                            <option value="">-- Sélectionner un hôtel --</option>
+                                            <option value="1">Golden Tulip Le Diplomate - Cotonou</option>
+                                            <option value="2">Azalaï Hôtel de la Plage - Grand-Popo</option>
+                                            <option value="3">Auberge de Grand-Popo - Grand-Popo</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="room-type" class="form-label">Type de chambre *</label>
+                                        <select class="form-select" id="room-type" required>
+                                            <option value="">-- Sélectionner le type --</option>
+                                            <option value="1" data-price="25000">Chambre Standard - 25,000 FCFA/nuit</option>
+                                            <option value="2" data-price="35000">Chambre Supérieure - 35,000 FCFA/nuit</option>
+                                            <option value="3" data-price="55000">Suite Junior - 55,000 FCFA/nuit</option>
+                                            <option value="4" data-price="85000">Suite Présidentielle - 85,000 FCFA/nuit</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h5>Période de séjour</h5>
+                                    <div class="mb-3">
+                                        <label for="arrival-date" class="form-label">Date d'arrivée *</label>
+                                        <input type="date" class="form-control" id="arrival-date" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="departure-date" class="form-label">Date de départ *</label>
+                                        <input type="date" class="form-control" id="departure-date" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="guests" class="form-label">Nombre de personnes</label>
+                                        <select class="form-select" id="guests">
+                                            <option value="1">1 personne</option>
+                                            <option value="2" selected>2 personnes</option>
+                                            <option value="3">3 personnes</option>
+                                            <option value="4">4 personnes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h5>Calcul automatique</h5>
+                                    <div class="calculation-box">
+                                        <div class="mb-2">
+                                            <strong>Nombre de nuits :</strong> <span id="nights-count">0</span> nuit(s)
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>Prix par nuit :</strong> <span id="price-per-night">0</span> FCFA
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>Montant total :</strong> <span id="total-amount">0</span> FCFA
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="send-email">
+                                            <label class="form-check-label" for="send-email">
+                                                Envoyer une confirmation par email
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary" id="cancel-reservation">Annuler</button>
+                                <div>
+                                    <button type="button" class="btn btn-outline-warning me-2" id="save-pending">Enregistrer en attente</button>
+                                    <button type="button" class="btn btn-primary" id="save-confirm">Enregistrer et confirmer</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h4>Aide et conseils</h4>
+                        
+                        <div class="mb-4">
+                            <h5>Types de chambres disponibles :</h5>
+                            <div class="room-type">
+                                <h5>Standard</h5>
+                                <p class="mb-0">2 personnes - Confort de base</p>
+                            </div>
+                            <div class="room-type">
+                                <h5>Supérieure</h5>
+                                <p class="mb-0">2 personnes - Plus d'espace</p>
+                            </div>
+                            <div class="room-type">
+                                <h5>Suite Junior</h5>
+                                <p class="mb-0">3 personnes - Salon séparé</p>
+                            </div>
+                            <div class="room-type">
+                                <h5>Présidentielle</h5>
+                                <p class="mb-0">4 personnes - Luxe maximum</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h5>Politiques de réservation :</h5>
+                            <ul>
+                                <li>Réservation minimum : 1 nuit</li>
+                                <li>Annulation gratuite 24h avant</li>
+                                <li>Confirmation par SMS/Email</li>
+                                <li>Paiement à l'arrivée accepté</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page Toutes les réservations -->
+                <div id="reservations-page" class="page-content" style="display: none;">
+                    <h2 class="mb-4">Toutes les réservations</h2>
+                    
+                    <div class="filter-section">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="filter-status" class="form-label">Statut</label>
+                                <select class="form-select" id="filter-status">
+                                    <option value="">Tous les statuts</option>
+                                    <option value="confirmed">Confirmées</option>
+                                    <option value="pending">En attente</option>
+                                    <option value="cancelled">Annulées</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filter-hotel" class="form-label">Hôtel</label>
+                                <select class="form-select" id="filter-hotel">
+                                    <option value="">Tous les hôtels</option>
+                                    <option value="1">Golden Tulip</option>
+                                    <option value="2">Azalai Hôtel</option>
+                                    <option value="3">Auberge Grand-Popo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filter-date-from" class="form-label">Date de début</label>
+                                <input type="date" class="form-control" id="filter-date-from">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filter-date-to" class="form-label">Date de fin</label>
+                                <input type="date" class="form-control" id="filter-date-to">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-primary me-2" id="apply-filters">
+                                    <i class="fas fa-filter me-1"></i> Appliquer les filtres
+                                </button>
+                                <button class="btn btn-outline-secondary" id="reset-filters">
+                                    <i class="fas fa-redo me-1"></i> Réinitialiser
+                                </button>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <button class="btn btn-success me-2" id="export-csv">
+                                    <i class="fas fa-file-csv me-1"></i> Exporter CSV
+                                </button>
+                                <button class="btn btn-danger" id="export-pdf">
+                                    <i class="fas fa-file-pdf me-1"></i> Exporter PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Liste des réservations</h5>
+                            <div>
+                                <button class="btn btn-sm btn-primary" id="new-reservation-btn">
+                                    <i class="fas fa-plus me-1"></i> Nouvelle réservation
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="reservations-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Client</th>
+                                            <th>Contact</th>
+                                            <th>Hôtel</th>
+                                            <th>Type de chambre</th>
+                                            <th>Dates</th>
+                                            <th>Nuits</th>
+                                            <th>Montant</th>
+                                            <th>Statut</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reservations-body">
+                                        <!-- Les réservations seront chargées dynamiquement -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page Gestion des hôtels -->
+                <div id="hotels-page" class="page-content" style="display: none;">
+                    <h2 class="mb-4">Gestion des hôtels</h2>
+                    
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Liste des hôtels</h5>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHotelModal">
+                                <i class="fas fa-plus me-1"></i> Ajouter un hôtel
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="hotels-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Ville</th>
+                                            <th>Adresse</th>
+                                            <th>Téléphone</th>
+                                            <th>Email</th>
+                                            <th>Étoiles</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="hotels-body">
+                                        <!-- Les hôtels seront chargés dynamiquement -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page Types de chambres -->
+                <div id="rooms-page" class="page-content" style="display: none;">
+                    <h2 class="mb-4">Types de chambres</h2>
+                    
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Liste des types de chambres</h5>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRoomTypeModal">
+                                <i class="fas fa-plus me-1"></i> Ajouter un type
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="rooms-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Description</th>
+                                            <th>Tarif/nuit</th>
+                                            <th>Capacité</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rooms-body">
+                                        <!-- Les types de chambres seront chargés dynamiquement -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page Rapports -->
+                <div id="reports-page" class="page-content" style="display: none;">
+                    <h2 class="mb-4">Rapports et statistiques</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card stat-card occupancy">
+                                <div class="number">72%</div>
+                                <div class="label">Taux d'occupation moyen</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card stat-card revenue">
+                                <div class="number">8,750,000</div>
+                                <div class="label">FCFA revenus trimestriels</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card stat-card">
+                                <div class="number">42</div>
+                                <div class="label">Nouvelles réservations ce mois</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Performance des hôtels</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="hotelsPerformanceChart" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Répartition des réservations</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="reservationsDistributionChart" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Rapports disponibles</h5>
+                            <div>
+                                <button class="btn btn-success me-2" id="export-excel">
+                                    <i class="fas fa-file-excel me-1"></i> Exporter Excel
+                                </button>
+                                <button class="btn btn-danger" id="export-pdf-report">
+                                    <i class="fas fa-file-pdf me-1"></i> Exporter PDF
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-chart-line fa-2x text-primary mb-3"></i>
+                                            <h5>Rapport de revenus</h5>
+                                            <p class="text-muted">Analyse des revenus par hôtel et période</p>
+                                            <button class="btn btn-outline-primary">Générer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-bed fa-2x text-primary mb-3"></i>
+                                            <h5>Rapport d'occupation</h5>
+                                            <p class="text-muted">Taux d'occupation par hôtel et type de chambre</p>
+                                            <button class="btn btn-outline-primary">Générer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-users fa-2x text-primary mb-3"></i>
+                                            <h5>Rapport clients</h5>
+                                            <p class="text-muted">Analyse du comportement des clients</p>
+                                            <button class="btn btn-outline-primary">Générer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>BENIN LODGE</h5>
+                    <p>Votre partenaire de confiance pour des séjours mémorables au Bénin.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact</h5>
+                    <p><i class="fas fa-phone me-2"></i> +229 21 30 45 67</p>
+                    <p><i class="fas fa-envelope me-2"></i> contact@beninlodge.bj</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Suivez-nous</h5>
+                    <div>
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p>&copy; 2025 BENIN LODGE. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal fade" id="addHotelModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajouter un hôtel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="hotel-form">
+                        <div class="mb-3">
+                            <label for="hotel-name" class="form-label">Nom de l'hôtel</label>
+                            <input type="text" class="form-control" id="hotel-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hotel-city" class="form-label">Ville</label>
+                            <input type="text" class="form-control" id="hotel-city" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hotel-address" class="form-label">Adresse</label>
+                            <textarea class="form-control" id="hotel-address" rows="2"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="hotel-phone" class="form-label">Téléphone</label>
+                                    <input type="tel" class="form-control" id="hotel-phone">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="hotel-stars" class="form-label">Étoiles</label>
+                                    <select class="form-select" id="hotel-stars">
+                                        <option value="1">★</option>
+                                        <option value="2">★★</option>
+                                        <option value="3">★★★</option>
+                                        <option value="4">★★★★</option>
+                                        <option value="5">★★★★★</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="hotel-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="hotel-email">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="save-hotel">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addRoomTypeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajouter un type de chambre</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="room-type-form">
+                        <div class="mb-3">
+                            <label for="room-type-name" class="form-label">Nom du type</label>
+                            <input type="text" class="form-control" id="room-type-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="room-type-description" class="form-label">Description</label>
+                            <textarea class="form-control" id="room-type-description" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="room-type-price" class="form-label">Tarif par nuit (FCFA)</label>
+                                    <input type="number" class="form-control" id="room-type-price" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="room-type-capacity" class="form-label">Capacité (personnes)</label>
+                                    <input type="number" class="form-control" id="room-type-capacity" required>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="save-room-type">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/reservations.js"></script>
+</body>
+</html>
