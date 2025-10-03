@@ -64,8 +64,9 @@ class Reservation {
             return ['success' => false, 'errors' => $errors];
         }
 
-        // Utiliser INSERT ... VALUES pour compatibilité avec SQL Server
+        // Utiliser OUTPUT INSERTED.id_reservation pour récupérer l'ID inséré (SQL Server)
         $query = "INSERT INTO " . $this->table . " (nom_client, telephone_client, email_client, id_hotel, id_type, date_arrivee, date_depart, nombre_nuits, montant_total, statut) 
+                  OUTPUT INSERTED.id_reservation
                   VALUES (:nom_client, :telephone_client, :email_client, :id_hotel, :id_type, :date_arrivee, :date_depart, :nombre_nuits, :montant_total, :statut)";
 
         $stmt = $this->conn->prepare($query);
@@ -85,10 +86,9 @@ class Reservation {
         try {
             $ok = $stmt->execute();
             if ($ok) {
-                // Récupérer l'ID inséré - pour SQL Server, utiliser SELECT SCOPE_IDENTITY() via une requête
-                $idStmt = $this->conn->query('SELECT SCOPE_IDENTITY() AS id');
-                $idRow = $idStmt->fetch(PDO::FETCH_ASSOC);
-                $insertedId = $idRow ? $idRow['id'] : null;
+                // Le statement retourne une ligne contenant id_reservation
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                $insertedId = $row['id_reservation'] ?? null;
                 return ['success' => true, 'id' => $insertedId];
             }
             return ['success' => false, 'errors' => ['échec exécution requête']];

@@ -73,16 +73,17 @@ function createReservation() {
     ) {
         $reservation = new Reservation();
         
-        $reservation->nom_client = $data->nom_client;
-        $reservation->telephone_client = $data->telephone_client;
-        $reservation->email_client = $data->email_client;
-        $reservation->id_hotel = $data->id_hotel;
-        $reservation->id_type = $data->id_type;
-        $reservation->date_arrivee = $data->date_arrivee;
-        $reservation->date_depart = $data->date_depart;
-        $reservation->nombre_nuits = $data->nombre_nuits;
-        $reservation->montant_total = $data->montant_total;
-        $reservation->statut = $data->statut;
+    // Assignation sécurisée avec valeurs par défaut si champs absents
+    $reservation->nom_client = $data->nom_client;
+    $reservation->telephone_client = $data->telephone_client;
+    $reservation->email_client = isset($data->email_client) ? $data->email_client : null;
+    $reservation->id_hotel = $data->id_hotel;
+    $reservation->id_type = $data->id_type;
+    $reservation->date_arrivee = $data->date_arrivee;
+    $reservation->date_depart = $data->date_depart;
+    $reservation->nombre_nuits = isset($data->nombre_nuits) ? $data->nombre_nuits : 1;
+    $reservation->montant_total = isset($data->montant_total) ? $data->montant_total : 0.0;
+    $reservation->statut = isset($data->statut) && $data->statut !== '' ? $data->statut : 'en attente';
         
         $result = $reservation->create();
         if (is_array($result)) {
