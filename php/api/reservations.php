@@ -84,12 +84,25 @@ function createReservation() {
         $reservation->montant_total = $data->montant_total;
         $reservation->statut = $data->statut;
         
-        if($reservation->create()) {
-            http_response_code(201);
-            echo json_encode(array("message" => "Réservation créée avec succès."));
+        $result = $reservation->create();
+        if (is_array($result)) {
+            if ($result['success']) {
+                http_response_code(201);
+                echo json_encode(array("message" => "Réservation créée avec succès.", "id" => $result['id']));
+            } else {
+                // Validation errors or execution errors
+                http_response_code(400);
+                echo json_encode(array("message" => "Erreur lors de la création.", "errors" => $result['errors']));
+            }
         } else {
-            http_response_code(503);
-            echo json_encode(array("message" => "Impossible de créer la réservation."));
+            // Fallback - ancien comportement
+            if($result === true) {
+                http_response_code(201);
+                echo json_encode(array("message" => "Réservation créée avec succès."));
+            } else {
+                http_response_code(503);
+                echo json_encode(array("message" => "Impossible de créer la réservation."));
+            }
         }
     } else {
         http_response_code(400);
