@@ -22,7 +22,8 @@ class ReservationsManager {
 
     async loadReservations() {
         try {
-            const response = await fetch('php/api/reservations.php');
+            const base = (window.API_BASE_URL && window.API_BASE_URL.replace(/\/$/, '')) || '';
+            const response = await fetch(base + '/php/api/reservations.php');
             const data = await response.json();
             
             if (data.data) {
@@ -79,7 +80,8 @@ class ReservationsManager {
         formData.statut = status;
 
         try {
-            const response = await fetch('php/api/reservations.php', {
+            const base = (window.API_BASE_URL && window.API_BASE_URL.replace(/\/$/, '')) || '';
+            const response = await fetch(base + '/php/api/reservations.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -153,7 +155,8 @@ class ReservationsManager {
     async confirmReservation(reservationId) {
         if (confirm('Confirmer cette réservation ?')) {
             try {
-                const response = await fetch('php/api/reservations.php', {
+                const base = (window.API_BASE_URL && window.API_BASE_URL.replace(/\/$/, '')) || '';
+                const response = await fetch(base + '/php/api/reservations.php', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -163,6 +166,7 @@ class ReservationsManager {
                         statut: 'confirmée'
                     })
                 });
+
 
                 const result = await response.json();
 
