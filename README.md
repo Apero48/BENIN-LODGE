@@ -77,86 +77,132 @@ $dbName = getenv('DB_NAME') ?: 'benin_lodge_db';
 $user = getenv('DB_USER') ?: 'SA';
 $pass = getenv('DB_PASS') ?: 'YourStrong!Passw0rd';
 ```
+# Benin Lodge — Guide d'installation, API et déploiement
 
-## Importer `sql/database.sql`
-- Le fichier `sql/database.sql` fourni dans le dépôt contient un schéma MySQL-like (AUTO_INCREMENT, ENUM). Pour MSSQL, le script d'import (`php/import_sql.php`) crée des tables compatibles T-SQL et insère les données de test.
-- Si vous préférez importer directement via `sqlcmd` :
-	- Installer `mssql-tools` dans votre environnement ou dans le container `db`.
-	- Exécuter :
+Ce dépôt contient une application PHP légère (API REST) et un schéma de base de données. Le projet est conçu pour être exécuté en local via Docker (PHP + Apache et Microsoft SQL Server). Ce README décrit comment démarrer localement, comment déployer le frontend sur Vercel et le backend sur une plateforme Docker-friendly (ex. Render), ainsi que l'utilisation de l'API générique.
 
-```bash
-docker exec -it benin-lodge-db-1 /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -d benin_lodge_db -i /path/to/sql/database.sql
-```
+## Contenu du dépôt
+- `index.html`, `css/`, `js/` : frontend statique
+- `php/` : code PHP (controllers, models, scripts d'initialisation et API)
+	- `php/config/database.php` : configuration de la connexion à MSSQL
+	- `php/api/` : endpoints API (hotels, reservations, room-types, query.php)
+	- `php/create_db.php` et `php/import_sql.php` : utilitaires d'initialisation
+- `sql/database.sql` : schéma et données d'exemple
+- `Dockerfile`, `docker-compose.yml` : configuration pour exécuter `web` (PHP) et `db` (MSSQL)
 
-Note : notre import PHP évite la nécessité d'installer `sqlcmd`.
+---
 
-## Vérifications et debugging
-- Voir les logs Docker :
-
-```bash
-docker-compose logs -f web
-docker-compose logs -f db
-```
-
-- Lister les containers :
+## Démarrage local (Docker)
+1. Construire et lancer :
 
 ```bash
-docker ps
-```
-
-- Si vous avez un conflit de port (ex. 1433 déjà utilisé), changez l'exposition dans `docker-compose.yml` (ex. `11433:1433`) ou arrêtez le container qui occupe le port.
-
-## Sécurité et bonnes pratiques
-- Ne stockez pas de secrets (mot de passe SA) dans le dépôt. Utilisez un fichier `.env` ou des variables d'environnement fournies au runtime.
-- Ne laissez pas exposé le port MSSQL (1433) sur un réseau public ; limitez l'accès au réseau Docker ou utilisez un VPN.
-- Changez le mot de passe `SA` par une valeur forte et unique.
-
-## FAQ (réponses prêtes)
-
-- Q : Quelle version de PHP et MSSQL ?
-	- R : PHP 8.2 (image `php:8.2-apache-bullseye`), MSSQL 2019 (image `mcr.microsoft.com/mssql/server:2019-latest`).
-
-- Q : Où sont les scripts d'initialisation de la base ?
-	- R : `sql/database.sql` contient le schéma d'origine. Pour MSSQL, utilisez `php/import_sql.php` (déjà exécuté) ou `sqlcmd`.
-
-- Q : Comment puis-je me connecter à la base depuis un outil externe (SSMS) ?
-	- R : Hôte : `localhost`, Port : `1433` (ou le port hôte que vous avez choisi), Utilisateur : `SA`, Mot de passe : celui défini dans `docker-compose.yml`.
-
-- Q : L'application fonctionne-t-elle sur macOS ?
-	- R : Oui — le projet fonctionne via Docker. Docker Desktop doit permettre l'exécution d'images linux/amd64 (la configuration `platform: linux/amd64` est déjà présente si nécessaire).
-
-- Q : Le projet est prêt pour la production ?
-	- R : Non — c'est une configuration de développement. Avant la production il faut : sécuriser les secrets, configurer TLS, limiter l'exposition des ports, ajouter des sauvegardes, et revoir la configuration des extensions et performances.
-
-## Commandes utiles (récapitulatif)
-
-```bash
-# Builder et démarrer
 docker-compose up --build
+```
 
-# Démarrer en arrière-plan (detached)
+2. Vérifier le service web :
+
+Ouvrir : http://localhost:8080/php/test.php
+
+3. Créer la base et importer les données (si nécessaire) :
+
+```bash
+docker exec benin-lodge-web-1 php /var/www/html/php/create_db.php
+docker exec benin-lodge-web-1 php /var/www/html/php/import_sql.php
+```
+
+---
+
+## Configuration / Variables d'environnement
+Utiliser des variables d'environnement plutôt que de stocker des credentials en clair.
+
+Variables conseillées :
+
+```
+DB_SERVER=host,port
+DB_NAME=benin_lodge_db
+DB_USER=SA
+DB_PASS=your_password
+API_TOKEN=un_token_long_et_secret
+```
+
+Modifiez `php/config/database.php` pour lire ces variables (getenv) si nécessaire.
+
+---
+
+## API — endpoint générique sécurisé
+Un endpoint générique est disponible : `php/api/query.php`.
+
+Actions supportées (GET) :
+- `action=list_hotels`
+- `action=get_hotel&id=ID`
+- `action=list_room_types`
+- `action=list_reservations`
+
+Authentification :
+- Le endpoint vérifie `API_TOKEN` si défini côté serveur.
+- Envoyer le token via l'en-tête `X-API-KEY: <token>` ou en paramètre `api_key`.
+
+Exemples :
+
+```bash
+# Lister les hôtels
+curl "https://TON_BACKEND/php/api/query.php?action=list_hotels"
+
+# Avec token
+curl -H "X-API-KEY: TON_TOKEN" "https://TON_BACKEND/php/api/query.php?action=list_hotels"
+
+# Obtenir un hôtel
+curl "https://TON_BACKEND/php/api/query.php?action=get_hotel&id=1&api_key=TON_TOKEN"
+```
+
+Exemple front-end (fetch) :
+
+```js
+fetch('https://TON_BACKEND/php/api/query.php?action=list_hotels', { headers: { 'X-API-KEY': 'TON_TOKEN' } })
+	.then(r => r.json())
+	.then(data => console.log(data));
+```
+
+---
+
+## Déploiement recommandé
+- Frontend (statique) → Vercel (déployer la racine du repo contenant `index.html`)
+- Backend (PHP Docker) → Render / DigitalOcean App Platform / autre plateforme qui supporte Docker
+- Base de données → Azure SQL (ou un service managé) recommandé pour MSSQL.
+
+Workflow :
+1. Préparer le repo : ajouter `.env.example` et `.gitignore` (ne pas committer `.env`).
+2. Déployer le backend sur Render (Docker) et définir les variables d'environnement (`DB_SERVER`, `DB_NAME`, `DB_USER`, `DB_PASS`, `API_TOKEN`).
+3. Déployer le frontend sur Vercel et définir `API_URL` vers l'URL publique du backend.
+4. Importer le schéma via `php/import_sql.php` ou `sqlcmd`.
+
+---
+
+## Sécurité & bonnes pratiques
+- Ne commitez jamais de secrets ; utilisez des variables d'environnement.
+- Changez le mot de passe SA si il a été poussé par erreur et retirez-le du dépôt (git rm --cached).
+- Utilisez TLS pour les connexions à la base en production.
+- Restreignez l'accès réseau au serveur MSSQL.
+
+---
+
+## Commandes utiles
+
+```bash
+docker-compose up --build
 docker-compose up -d --build
-
-# Voir les logs
 docker-compose logs -f web
 docker-compose logs -f db
-
-# Exécuter un script PHP dans le container web
 docker exec benin-lodge-web-1 php /var/www/html/php/import_sql.php
-
-# Créer la base (si besoin)
 docker exec benin-lodge-web-1 php /var/www/html/php/create_db.php
-
-# Se connecter au container DB (sqlcmd si installé)
-docker exec -it benin-lodge-db-1 /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd'
 ```
 
 ---
 
 Si tu veux, je peux :
-- committer les scripts `php/create_db.php` et `php/import_sql.php` dans le dépôt,
-- ajouter un `.env.example` et modifier `php/config/database.php` pour lire les variables d'environnement,
-- ajouter une route d'administration pour visualiser les tables depuis le navigateur.
+- ajouter `.env.example` et `.gitignore` et mettre à jour `php/config/database.php` pour lire les variables d'environnement,
+- ajouter un petit script d'admin pour lancer l'import depuis l'interface (protégé par token),
+- préparer un guide pas-à-pas pour Render + Azure SQL et exécuter les changements nécessaires.
 
-Dis-moi quelle option tu veux que j'implémente ensuite.
-# BENIN-LODGE
+Dis-moi quelle action tu veux que je fasse ensuite.
+## Importer `sql/database.sql`

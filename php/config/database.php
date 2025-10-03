@@ -22,8 +22,9 @@ class Database {
         // Charger les valeurs depuis les variables d'environnement si présentes
         $this->server = getenv('DB_SERVER') ?: 'db,1433';
         $this->db_name = getenv('DB_NAME') ?: 'benin_lodge_db';
-        $this->username = getenv('DB_USER') ?: 'SA';
-        $this->password = getenv('DB_PASSWORD') ?: 'YourStrong!Passw0rd';
+    $this->username = getenv('DB_USER') ?: 'SA';
+    // Nom de variable standardisé : DB_PASS
+    $this->password = getenv('DB_PASS') ?: 'YourStrong!Passw0rd';
 
         // 1) Essayer PDO avec driver sqlsrv
         if (extension_loaded('pdo')) {
